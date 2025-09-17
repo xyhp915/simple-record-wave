@@ -1,17 +1,39 @@
 let seed = 0;
 
+export class BeatsObserver {
+  private subscribers: Array<(v: number) => void> = [];
+
+  subscribe(fn: (v: number) => void) {
+    this.subscribers.push(fn);
+  }
+
+  notify(value: number) {
+    this.subscribers.forEach((fn) => fn(value));
+  }
+
+  clear() {
+    this.subscribers = [];
+  }
+}
+
 export class RecordWaveform {
   private id: string = `waveform-${++seed}`;
   private elContainer?: HTMLElement;
   private elBelt?: HTMLElement;
   private readonly opts: any;
   private timer: number = 0;
+  private beatsObserver?: BeatsObserver;
 
   private _start: () => void = () => {};
   private _pause: () => void = () => {};
 
   constructor(options: any = {}) {
     this.opts = options || {};
+    this.beatsObserver = this.opts.beatsObserver;
+  }
+
+  get isRunning() {
+    return this.timer > 0;
   }
 
   render(root: HTMLElement) {
@@ -53,10 +75,22 @@ export class RecordWaveform {
       }
 
       let step = initialStep;
-      const resetItems = () => {};
+      const resetItems = () => {
+        for (let i = 0; i < itemCount; i++) {
+          const item = elBlock.children[i] as HTMLElement;
+          item.style.removeProperty('height');
+        }
+      };
+
       const renderNextStepOffset = () => {
         step += 2;
         elBlock.style.transform = `translateX(${step * 100}%)`;
+        resetItems();
+      };
+
+      const renderItemBeat = (index: number, percent: number) => {
+        const item = elBlock.children[index] as HTMLElement;
+        item.style.height = `${percent}%`;
       };
 
       // set default offset
@@ -67,6 +101,7 @@ export class RecordWaveform {
         elBlock,
         resetItems,
         renderNextStepOffset,
+        renderItemBeat,
       };
     };
 
@@ -82,17 +117,34 @@ export class RecordWaveform {
     setBeltTranslateX(0);
 
     let beltX = 0;
+    const blockWidth = itemCount * (itemWidth + itemGap);
+
     const tickFrame = () => {
       beltX += 1;
       setBeltTranslateX(-beltX);
 
       // move next block
-      const blockWidth = itemCount * (itemWidth + 2);
       if (beltX >= blockWidth && beltX % blockWidth === 0) {
         nextInvalidateBlock.renderNextStepOffset();
         nextInvalidateBlock = nextInvalidateBlock === block1 ? block2 : block1;
       }
     };
+
+    // subscribe beats
+    this.beatsObserver?.subscribe((value: number) => {
+      if (value < 0) return;
+      if (!this.isRunning) return;
+
+      // right boundary block
+      const currentBlock =
+        Math.floor((beltX + elContainerWidth) / blockWidth) % 2 === 0
+          ? block1
+          : block2;
+      const itemIndex = Math.floor(
+        ((beltX + elContainerWidth) % blockWidth) / (itemWidth + itemGap),
+      );
+      currentBlock.renderItemBeat(itemIndex, value);
+    });
 
     this._start = () => {
       this.timer = setInterval(tickFrame, 1000 / 30);
@@ -115,6 +167,8 @@ export class RecordWaveform {
 
   destroy() {
     this.pause();
+    this.beatsObserver?.clear();
+
     if (this.elContainer) {
       this.elContainer.innerHTML = '';
     }
