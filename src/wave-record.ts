@@ -26,6 +26,7 @@ export class RecordWaveform {
 
   private _start: () => void = () => {};
   private _pause: () => void = () => {};
+  private _reset: () => void = () => {};
 
   constructor(options: any = {}) {
     this.opts = options || {};
@@ -156,6 +157,16 @@ export class RecordWaveform {
       clearInterval(this.timer);
       this.timer = 0;
     };
+
+    this._reset = () => {
+      beltX = 0;
+      setBeltTranslateX(0);
+      block1.resetItems();
+      block2.resetItems();
+      nextInvalidateBlock = block1;
+      block1.elBlock.style.transform = `translateX(0%)`;
+      block2.elBlock.style.transform = `translateX(100%)`;
+    };
   }
 
   pause() {
@@ -165,6 +176,12 @@ export class RecordWaveform {
   start() {
     if (this.timer > 0) return;
     this._start();
+  }
+
+  stop() {
+    this.pause();
+    // reset
+    this._reset();
   }
 
   destroy() {

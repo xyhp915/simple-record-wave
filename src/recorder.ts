@@ -46,9 +46,10 @@ export class Recorder extends EventEmitter<RecordEvents> {
   private isDestroyed = false;
   private subscriptions: (() => void)[] = [];
 
-  constructor() {
+  constructor(opts: any = {}) {
     super();
     this.timer = new Timer();
+    this.options = opts;
 
     this.subscriptions.push(
       this.timer.on('tick', () => {
@@ -61,8 +62,8 @@ export class Recorder extends EventEmitter<RecordEvents> {
     );
   }
 
-  public static create() {
-    return new Recorder();
+  public static create(opts?: any) {
+    return new Recorder(opts || {});
   }
 
   public renderMicStream(stream: MediaStream): MicStream {
