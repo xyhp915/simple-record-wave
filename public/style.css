@@ -82,6 +82,7 @@ body {
   background: #333;
   border-radius: 6px;
   height: 10px;
+  transition: height .2s;
 }
 
 .waveform-items-block {

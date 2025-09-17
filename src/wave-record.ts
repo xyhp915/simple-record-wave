@@ -135,6 +135,8 @@ export class RecordWaveform {
       if (value < 0) return;
       if (!this.isRunning) return;
 
+      value = Math.min(Math.max(value, 0), 100);
+
       // right boundary block
       const currentBlock =
         Math.floor((beltX + elContainerWidth) / blockWidth) % 2 === 0
