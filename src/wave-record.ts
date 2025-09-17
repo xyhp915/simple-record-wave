@@ -49,7 +49,7 @@ export class RecordWaveform {
       '.waveform-belt',
     ) as HTMLElement);
 
-    const elContainerWidth = this.opts.width || 200;
+    const elContainerWidth = this.opts.width || 150;
     const itemCount = this.opts.itemCount || 60;
     const itemWidth = this.opts.itemWidth || 3;
     const itemGap = this.opts.itemGap || 2;

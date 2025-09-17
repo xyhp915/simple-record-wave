@@ -24,11 +24,44 @@ body {
   height: 100vh;
 }
 
+.app-wave-container {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  gap: 1px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+.app-wave-container > div.mirror {
+  opacity: .5;
+}
+
+.app-wave-needle {
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  height: 110%;
+  width: 2px;
+  background: red;
+  border-radius: 6px;
+}
+
+.app-wave-needle:after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -2px;
+  width: 6px;
+  height: 6px;
+  background: red;
+  border-radius: 100%;
+}
+
 .waveform-container {
   position: relative;
   height: 120px;
   overflow: hidden;
-  border: 1px solid #ccc;
   box-sizing: border-box;
   user-select: none;
 

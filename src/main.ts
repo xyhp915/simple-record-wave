@@ -1,10 +1,23 @@
 import { BeatsObserver, renderWaveform } from './wave-record.ts';
 
 export function setupCounter(element: HTMLElement) {
+  const container = document.createElement('div');
+  container.classList.add('app-wave-container');
+
+  const needle = document.createElement('div');
+  needle.classList.add('app-wave-needle');
+
+  const waveA = document.createElement('div');
+  const waveB = document.createElement('div');
+  waveB.classList.add('mirror')
+  container.appendChild(waveA);
+  container.appendChild(waveB);
+  container.appendChild(needle);
+  element.appendChild(container);
+
   const beatsObserver = new BeatsObserver();
-  const w = renderWaveform(element, {
-    beatsObserver,
-  });
+  const w = renderWaveform(waveA, { beatsObserver });
+  const w1 = renderWaveform(waveB, {});
 
   const ctrls = document.createElement('div');
   ctrls.style.paddingTop = '20px';
@@ -21,11 +34,18 @@ export function setupCounter(element: HTMLElement) {
   const stopBtn = document.getElementById('pause')!;
   const beatsBtn = document.getElementById('beats')!;
 
-  startBtn.onclick = () => w.start();
-  stopBtn.onclick = () => w.pause();
+  startBtn.onclick = () => {
+    w.start();
+    w1.start();
+  };
+  stopBtn.onclick = () => {
+    w.pause();
+    w1.pause();
+  };
 
   beatsBtn.onclick = () => {
-    w.start()
+    w.start();
+    w1.start();
     beatsObserver.notify(Math.max(Math.floor(Math.random() * 80), 10));
   };
 }
