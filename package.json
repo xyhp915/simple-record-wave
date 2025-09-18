@@ -1,11 +1,16 @@
 {
   "name": "@xyhp915/simple-wave-record",
-  "version": "0.0.1",
-  "main": "./dist/lib.es.js",
+  "version": "0.0.3",
+  "main": "./dist/simple-wave-record.es.js",
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "build:lib": "vite build --config vite.lib.config.ts",
+    "build:lib": "vite build --config ./vite.config.lib.js",
     "preview": "vite preview"
   },
   "devDependencies": {

@@ -1,25 +1,25 @@
 type TimerEvents = {
-  tick: [];
-};
+  tick: []
+}
 
 export type GeneralEventTypes = {
   // the name of the event and the data it dispatches with
   // e.g. 'entryCreated': [count: 1]
-  [EventName: string]: unknown[];
-};
+  [EventName: string]: unknown[]
+}
 
 type EventListener<
   EventTypes extends GeneralEventTypes,
   EventName extends keyof EventTypes,
-> = (...args: EventTypes[EventName]) => void;
+> = (...args: EventTypes[EventName]) => void
 
 type EventMap<EventTypes extends GeneralEventTypes> = {
-  [EventName in keyof EventTypes]: Set<EventListener<EventTypes, EventName>>;
-};
+  [EventName in keyof EventTypes]: Set<EventListener<EventTypes, EventName>>
+}
 
 /** A simple event emitter that can be used to listen to and emit events. */
 export class EventEmitter<EventTypes extends GeneralEventTypes> {
-  private listeners = {} as EventMap<EventTypes>;
+  private listeners = {} as EventMap<EventTypes>
 
   /** Subscribe to an event. Returns an unsubscribe function. */
   public on<EventName extends keyof EventTypes>(
@@ -28,20 +28,20 @@ export class EventEmitter<EventTypes extends GeneralEventTypes> {
     options?: { once?: boolean },
   ): () => void {
     if (!this.listeners[event]) {
-      this.listeners[event] = new Set();
+      this.listeners[event] = new Set()
     }
-    this.listeners[event].add(listener);
+    this.listeners[event].add(listener)
 
     if (options?.once) {
       const unsubscribeOnce = () => {
-        this.un(event, unsubscribeOnce);
-        this.un(event, listener);
-      };
-      this.on(event, unsubscribeOnce);
-      return unsubscribeOnce;
+        this.un(event, unsubscribeOnce)
+        this.un(event, listener)
+      }
+      this.on(event, unsubscribeOnce)
+      return unsubscribeOnce
     }
 
-    return () => this.un(event, listener);
+    return () => this.un(event, listener)
   }
 
   /** Unsubscribe from an event */
@@ -49,7 +49,7 @@ export class EventEmitter<EventTypes extends GeneralEventTypes> {
     event: EventName,
     listener: EventListener<EventTypes, EventName>,
   ): void {
-    this.listeners[event]?.delete(listener);
+    this.listeners[event]?.delete(listener)
   }
 
   /** Subscribe to an event only once */
@@ -57,12 +57,12 @@ export class EventEmitter<EventTypes extends GeneralEventTypes> {
     event: EventName,
     listener: EventListener<EventTypes, EventName>,
   ): () => void {
-    return this.on(event, listener, { once: true });
+    return this.on(event, listener, { once: true })
   }
 
   /** Clear all events */
   public unAll(): void {
-    this.listeners = {} as EventMap<EventTypes>;
+    this.listeners = {} as EventMap<EventTypes>
   }
 
   /** Emit an event */
@@ -71,28 +71,28 @@ export class EventEmitter<EventTypes extends GeneralEventTypes> {
     ...args: EventTypes[EventName]
   ): void {
     if (this.listeners[eventName]) {
-      this.listeners[eventName].forEach((listener) => listener(...args));
+      this.listeners[eventName].forEach((listener) => listener(...args))
     }
   }
 }
 
 export class Timer extends EventEmitter<TimerEvents> {
-  private unsubscribe: () => void = () => undefined;
+  private unsubscribe: () => void = () => undefined
 
   start() {
     this.unsubscribe = this.on('tick', () => {
       requestAnimationFrame(() => {
-        this.emit('tick');
-      });
-    });
-    this.emit('tick');
+        this.emit('tick')
+      })
+    })
+    this.emit('tick')
   }
 
   stop() {
-    this.unsubscribe();
+    this.unsubscribe()
   }
 
   destroy() {
-    this.unsubscribe();
+    this.unsubscribe()
   }
 }
